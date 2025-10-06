@@ -1,13 +1,47 @@
-> Why do I have a folder named ".expo" in my project?
+Christof's Kitchen – Mobile Menu App
 
-The ".expo" folder is created when an Expo project is started using "expo start" command.
+Chef Christoffel’s private chef menu application built in React Native.
+This app allows Chef Christoffel to manage his menu, add dishes, and let clients view or filter items by course, all in a sleek, professional mobile interface.
 
-> What do the files contain?
+Features
 
-- "devices.json": contains information about devices that have recently opened this project. This is used to populate the "Development sessions" list in your development builds.
-- "settings.json": contains the server configuration that is used to serve the application manifest.
+View all current menu items
 
-> Should I commit the ".expo" folder?
+Add new menu items with name, description, course, and price
 
-No, you should not share the ".expo" folder. It does not contain any information that is relevant for other developers working on the project, it is specific to your machine.
-Upon project creation, the ".expo" folder is already added to your ".gitignore" file.
+Filter menu by course: Starters, Mains, Desserts, or All
+
+Count total dishes and show average price per course
+
+Sleek black & gold UI for a luxury feel
+
+Screens
+1. Home Screen
+
+Displays all menu items in a list
+
+Shows total number of dishes and average price per course
+
+Navigation buttons to add new items or filter
+
+2. Add Menu Item Screen
+
+Input fields for dish name, description, course, and price
+
+Add button to save the item to the menu
+
+Cancel button to discard input
+
+3. Filter by Course Screen
+
+Allows filtering menu items by course category
+
+Displays only the selected course’s dishes
+
+Back button to return to Home
+
+Technologies
+
+React Native – Mobile framework
+
+React Navigation – Stack navigation
