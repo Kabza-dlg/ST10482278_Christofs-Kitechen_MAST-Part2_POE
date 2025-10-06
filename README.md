@@ -1,7 +1,9 @@
 MAST POE Part 2 – Christof’s-Kitchen
 
 ST10482278 GitHub link: https://github.com/Kabza-dlg/ST10482278_Christofs-Kitechen_MAST-Part2_POE.git
-ST10482278 YouTube link:
+
+ST10482278 YouTube link: https://youtu.be/X0zTHgoC3_U
+
 Christof's Kitchen – Mobile Menu App
 Chef Christoffel’s private chef menu application built in React Native.
 This app allows Chef Christoffel to manage his menu, add/edit/delete dishes, and let clients view or filter items by course, all in a sleek, professional mobile interface.
