@@ -1,46 +1,71 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+// screens/AddMenuItemScreen.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { MenuContext } from '../context/MenuContext';
+import { useMenu } from '../context/MenuContext';
 
-export default function AddMenuItemScreen({ navigation }) {
-  const { addDish } = useContext(MenuContext);
+export default function AddMenuItemScreen({ navigation, route }) {
+  const { addDish, updateDish } = useMenu();
+  const dishToEdit = route.params?.dishToEdit;
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [course, setCourse] = useState('Starters');
   const [price, setPrice] = useState('');
 
-  const handleAdd = () => {
-    if (!name || !price) return;
-    addDish({ name, description, course, price });
+  useEffect(() => {
+    if (dishToEdit) {
+      setName(dishToEdit.name);
+      setDescription(dishToEdit.description);
+      setCourse(dishToEdit.course);
+      setPrice(dishToEdit.price);
+    }
+  }, [dishToEdit]);
+
+  const onSave = () => {
+    if (!name.trim()) return Alert.alert('Validation', 'Please enter a dish name');
+    if (!price || isNaN(Number(price))) return Alert.alert('Validation', 'Enter valid price');
+
+    if (dishToEdit) {
+      updateDish(dishToEdit.id, { name, description, course, price });
+    } else {
+      addDish({ name, description, course, price });
+    }
     navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add New Dish</Text>
+      <Text style={styles.label}>Dish Name</Text>
+      <TextInput style={styles.input} value={name} onChangeText={setName} />
 
-      <TextInput placeholder="Dish Name" placeholderTextColor="#ccc" style={styles.input} value={name} onChangeText={setName} />
-      <TextInput placeholder="Description" placeholderTextColor="#ccc" style={styles.input} value={description} onChangeText={setDescription} />
-      <Picker selectedValue={course} onValueChange={setCourse} style={styles.picker}>
-        <Picker.Item label="Starters" value="Starters" />
-        <Picker.Item label="Mains" value="Mains" />
-        <Picker.Item label="Desserts" value="Desserts" />
-      </Picker>
-      <TextInput placeholder="Price" placeholderTextColor="#ccc" style={styles.input} value={price} onChangeText={setPrice} keyboardType="numeric" />
+      <Text style={styles.label}>Description</Text>
+      <TextInput style={[styles.input, { height: 80 }]} value={description} onChangeText={setDescription} multiline />
+
+      <Text style={styles.label}>Course</Text>
+      <View style={styles.pickerWrap}>
+        <Picker selectedValue={course} onValueChange={(val) => setCourse(val)}>
+          <Picker.Item label="Starters" value="Starters" />
+          <Picker.Item label="Mains" value="Mains" />
+          <Picker.Item label="Desserts" value="Desserts" />
+        </Picker>
+      </View>
+
+      <Text style={styles.label}>Price (ZAR)</Text>
+      <TextInput style={styles.input} value={price} onChangeText={setPrice} keyboardType="numeric" />
 
       <View style={styles.buttonRow}>
-        <Button title="Cancel" color="#444" onPress={() => navigation.goBack()} />
-        <Button title="Add" color="#FFD700" onPress={handleAdd} />
+        <Button title="Cancel" onPress={() => navigation.goBack()} />
+        <Button title={dishToEdit ? 'Update' : 'Add'} onPress={onSave} />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000', padding: 20 },
-  title: { color: '#FFD700', fontSize: 22, marginBottom: 20, fontWeight: 'bold' },
-  input: { backgroundColor: '#111', color: '#FFD700', borderRadius: 8, marginVertical: 10, padding: 10 },
-  picker: { backgroundColor: '#111', color: '#FFD700', marginVertical: 10 },
+  container: { flex: 1, padding: 12 },
+  label: { marginTop: 12, fontWeight: '600' },
+  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 8, marginTop: 4 },
+  pickerWrap: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, marginTop: 4 },
   buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
 });

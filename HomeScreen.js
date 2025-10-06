@@ -1,54 +1,82 @@
-import React, { useContext } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { MenuContext } from '../context/MenuContext';
+// screens/HomeScreen.js
+import React from 'react';
+import { View, Text, FlatList, Button, Alert, StyleSheet } from 'react-native';
+import { useMenu } from '../context/MenuContext';
 
 export default function HomeScreen({ navigation }) {
-  const { menu } = useContext(MenuContext);
+  const { menu, deleteDish } = useMenu();
 
-  const averagePrice = menu.length
-    ? (menu.reduce((acc, item) => acc + parseFloat(item.price || 0), 0) / menu.length).toFixed(2)
-    : 0;
+  // Total count
+  const totalCount = menu.length;
+
+  // Average price per course
+  const courseStats = menu.reduce((acc, item) => {
+    acc[item.course] = acc[item.course] || { sum: 0, count: 0 };
+    acc[item.course].sum += Number(item.price) || 0;
+    acc[item.course].count += 1;
+    return acc;
+  }, {});
+
+  const avgPrice = (course) => {
+    const s = courseStats[course];
+    if (!s || s.count === 0) return '-';
+    return (s.sum / s.count).toFixed(2);
+  };
+
+  const confirmDelete = (id) => {
+    Alert.alert('Delete Dish', 'Are you sure you want to delete this dish?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteDish(id) },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Current Menu</Text>
+      <Text style={styles.title}>Chef Christoffel's Menu</Text>
+
+      <View style={styles.statsRow}>
+        <Text>Total items: {totalCount}</Text>
+        <Text>Avg Starters: {avgPrice('Starters')}</Text>
+        <Text>Avg Mains: {avgPrice('Mains')}</Text>
+        <Text>Avg Desserts: {avgPrice('Desserts')}</Text>
+      </View>
 
       <FlatList
         data={menu}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.dish}>{item.name}</Text>
-            <Text style={styles.desc}>{item.description}</Text>
-            <Text style={styles.price}>R{item.price}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={styles.dishName}>{item.name}</Text>
+              <Text style={styles.price}>R {item.price}</Text>
+            </View>
+            <Text style={styles.course}>{item.course}</Text>
+            <Text style={styles.description}>{item.description}</Text>
+            <View style={styles.buttonRow}>
+              <Button title="Edit" onPress={() => navigation.push('AddMenuItem', { dishToEdit: item })} />
+              <Button title="Delete" color="red" onPress={() => confirmDelete(item.id)} />
+            </View>
           </View>
         )}
       />
 
-      <Text style={styles.info}>Total Dishes: {menu.length}</Text>
-      <Text style={styles.info}>Average Price: R{averagePrice}</Text>
-
-      <View style={styles.buttons}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddMenuItem')}>
-          <Text style={styles.buttonText}>Add Dish</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Filter')}>
-          <Text style={styles.buttonText}>Filter Menu</Text>
-        </TouchableOpacity>
+      <View style={styles.footer}>
+        <Button title="Add Dish" onPress={() => navigation.push('AddMenuItem')} />
+        <Button title="Filter by Course" onPress={() => navigation.push('Filter')} />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000', padding: 20 },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#FFD700', marginBottom: 10 },
-  card: { backgroundColor: '#111', padding: 15, marginVertical: 8, borderRadius: 10, borderColor: '#FFD700', borderWidth: 1 },
-  dish: { fontSize: 20, color: '#FFD700', fontWeight: 'bold' },
-  desc: { color: '#ccc', fontSize: 14, marginTop: 4 },
-  price: { color: '#FFD700', fontSize: 16, marginTop: 6 },
-  info: { color: '#FFD700', marginTop: 8 },
-  buttons: { marginTop: 20, flexDirection: 'row', justifyContent: 'space-between' },
-  button: { backgroundColor: '#FFD700', padding: 12, borderRadius: 10, width: '48%' },
-  buttonText: { color: '#000', fontWeight: 'bold', textAlign: 'center' },
+  container: { flex: 1, padding: 12 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12 },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
+  card: { padding: 12, borderWidth: 1, borderColor: '#ddd', marginBottom: 8, borderRadius: 8 },
+  dishName: { fontWeight: 'bold', fontSize: 16 },
+  course: { fontStyle: 'italic', color: '#555' },
+  description: { marginVertical: 4 },
+  price: { fontWeight: '600' },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
+  footer: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 },
 });
